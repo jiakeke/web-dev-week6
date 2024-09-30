@@ -60,18 +60,18 @@ describe("Workout API Tests", () => {
       });
     });
 
-    describe("GET /api/workouts/:id", () => {
-      it("should return a single workout by ID", async () => {
+    describe("DELETE /api/workouts/:id", () => {
+      it("should delete a workout by ID", async () => {
+        await api
+          .delete(`/api/workouts/${savedWorkoutId}`)
+          .set("Authorization", `bearer ${token}`)
+          .expect(200);
+
+        // Verify that the workout no longer exists
         const response = await api
           .get(`/api/workouts/${savedWorkoutId}`)
           .set("Authorization", `bearer ${token}`)
-          .expect(200)
-          .expect("Content-Type", /application\/json/);
-
-        // Verify the response contains the correct workout data
-        expect(response.body.title).toBe(workouts[1].title);
-        expect(response.body.reps).toBe(workouts[1].reps);
-        expect(response.body.load).toBe(workouts[1].load);
+          .expect(404);  // The workout should not be found
       });
     });
 
@@ -89,25 +89,31 @@ describe("Workout API Tests", () => {
           .send(updatedWorkout)
           .expect(200);
 
+        const new_response = await api
+          .get(`/api/workouts/${savedWorkoutId}`)
+          .set("Authorization", `bearer ${token}`)
+          .expect(200)
+          .expect("Content-Type", /application\/json/);
+
         // Verify the response contains updated values
-        expect(response.body.title).toBe(updatedWorkout.title);
-        expect(response.body.reps).toBe(updatedWorkout.reps);
-        expect(response.body.load).toBe(updatedWorkout.load);
+        expect(new_response.body.title).toBe(updatedWorkout.title);
+        expect(new_response.body.reps).toBe(updatedWorkout.reps);
+        expect(new_response.body.load).toBe(updatedWorkout.load);
       });
     });
 
-    describe("DELETE /api/workouts/:id", () => {
-      it("should delete a workout by ID", async () => {
-        await api
-          .delete(`/api/workouts/${savedWorkoutId}`)
-          .set("Authorization", `bearer ${token}`)
-          .expect(200);
-
-        // Verify that the workout no longer exists
+    describe("GET /api/workouts/:id", () => {
+      it("should return a single workout by ID", async () => {
         const response = await api
           .get(`/api/workouts/${savedWorkoutId}`)
           .set("Authorization", `bearer ${token}`)
-          .expect(404);  // The workout should not be found
+          .expect(200)
+          .expect("Content-Type", /application\/json/);
+
+        // Verify the response contains the correct workout data
+        expect(response.body.title).toBe(workouts[1].title);
+        expect(response.body.reps).toBe(workouts[1].reps);
+        expect(response.body.load).toBe(workouts[1].load);
       });
     });
 
